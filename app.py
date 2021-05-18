@@ -1,4 +1,5 @@
-from database import fetch_entries, add_entry, create_table
+import datetime
+import database
 
 menu = """Please select one of the following options:
 1. Add new movie
@@ -12,31 +13,46 @@ Your Input: """
 
 Welcome = """Welcome to the movie watching app"""
 
-
-# def prompt_new_entry():
-#     date = input("Enter a date:")
-#     content = input("Enter the content:")
-#     add_entry(date, content)
-#
-#
-# def view_entries(entries):
-#     for entry in entries:
-#         print(f"Date : {entry[1]}\nContent : {entry[0]}\n\n")
-
-
 print(Welcome)
-create_table()
+database.create_tables()
+
+
+def prompt_add_movie():
+    title = input("Movie title: ")
+    release_date = input("Release Date (dd-mm-YYYY): ")
+    parsed_date = datetime.datetime.strptime(release_date, "%d-%m-%Y")
+    timestamp = parsed_date.timestamp()
+
+    database.add_movie(title, timestamp)
+
+
+def print_movie_list(heading, movies):
+    print(f"{heading} movies:")
+    for movie in movies:
+        movie_date = datetime.datetime.fromtimestamp(movie[1])
+        human_date = movie_date.strftime("%d-%m-%Y")
+        print(f"Movie name : {movie[0]}\nRelease Date: {human_date}\n")
+    print("------ \n")
+
+
+def prompt_watch_movie():
+    title = input("Enter the movie title you have watched: ")
+    database.watch_movie(title)
+
 
 while (user_input := input(menu)) != "6":
     if user_input == "1":
-        pass
+        prompt_add_movie()
     elif user_input == "2":
-        pass
+        movies = database.get_movies(True)
+        print_movie_list("Upcoming", movies)
     elif user_input == "3":
-        pass
+        movies = database.get_movies()
+        print_movie_list("All", movies)
     elif user_input == "4":
-        pass
+        prompt_watch_movie()
     elif user_input == "5":
-        pass
+        watched_movies = database.get_watched_movies()
+        print_movie_list("Watched", watched_movies)
     else:
         print("Invalid input, Please try again!")
